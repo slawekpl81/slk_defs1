@@ -8,46 +8,29 @@
 #include <map>
 #include <optional>
 
-std::vector<std::string> process_args(const int argc, char* argv[]) {
-    // Konwersja na std::vector<std::string>
-    // Używamy konstruktora zakresowego: [argv, argv + argc]
-    // To tworzy wektor z elementów, na które wskazują wskaźniki od argv[0] do argv[argc-1]
-    std::vector<std::string> args_vector(argv, argv + argc);
+/**
+ * Converts C-style command-line arguments into a vector of strings.
+ * Null entries in argv are skipped; returns an empty vector if argc <= 0 or argv is null.
+ *
+ * @param argc Argument count passed to main().
+ * @param argv Argument vector passed to main().
+ * @return Vector containing all non-null command-line argument strings.
+ */
+std::vector<std::string> process_args(int argc, char* argv[]);
 
-    return args_vector;
-}
-
-std::optional<std::map<std::string, std::string>> parse_cli_args(const int argc, char* argv[]) {
-    if (argc >1) {
-        const auto args = process_args(argc, argv);
-        std::map<std::string, std::string> options;
-
-        // Zaczynamy od i = 1, aby pominąć nazwę programu
-        for (size_t i = 1; i < args.size(); ++i) {
-            std::string arg = args[i];
-
-            // 1. Sprawdzenie, czy jest to opcja (zaczyna się od '-' lub '--')
-            if (arg.rfind('-', 0) == 0) {
-
-                // Usunięcie początkowych myślników (np. "-name" -> "name")
-                std::string key = arg.substr(arg.rfind('-') == 0 && arg[1] != '-' ? 1 : 2);
-
-                    // Format: -klucz [wartość] lub -flaga
-
-                    // Sprawdzenie, czy następny argument nie istnieje lub nie jest kolejną opcją
-                    if (i + 1 < args.size() && args[i + 1].rfind('-', 0) != 0) {
-                        // Jest to format: -klucz wartość (rozdzielony spacją)
-                        options[key] = args[i + 1];
-                        i++; // Przesunięcie licznika o jeden, aby pominąć wartość w następnej iteracji
-                    } else {
-                        // Jest to format: -flaga (opcja binarna, wartość ustawiana na "true")
-                        options[key] = "true";
-                    }
-
-            }
-        }
-        return options;
-    }else {
-        return std::nullopt;
-    }
-}
+/**
+ * Parses command-line options from argv (skipping argv[0]) into a key-value map.
+ *
+ * Supported option formats:
+ * - `--key=value` / `-key=value`
+ * - `--key value` / `-key value` (negative numbers such as `-10` or `-3.5` are accepted as values)
+ * - `--flag` / `-flag` (stored with value `"true"`)
+ *
+ * Parsing stops at the `--` end-of-options separator; standalone positional tokens
+ * and bare `-` are ignored.
+ *
+ * @param argc Argument count passed to main().
+ * @param argv Argument vector passed to main().
+ * @return Map of parsed option names to values, or std::nullopt if argc <= 1 or argv is null.
+ */
+std::optional<std::map<std::string, std::string>> parse_cli_args(int argc, char* argv[]);

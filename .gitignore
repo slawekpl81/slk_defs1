@@ -33,3 +33,29 @@
 *.app
 
 /cmake-build-debug
+/build
+/.xmake
+/.vscode
+/.idea
+
+# xmake build directories
+.xmake/
+build/
+
+# Executables and object files
+*.o
+*.obj
+*.out
+*.exe
+
+# IDE and editor configurations
+.idea/
+.vscode/
+.cache/
+compile_commands.json
+*.swp
+*.swo
+*~
+
+# System files
+.DS_Store
